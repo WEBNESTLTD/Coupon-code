@@ -33,8 +33,12 @@ export class Router {
   }
 
   public init(): void {
-    // Check if initial URL is path-based (e.g. /claim) on servers that rewrite
-    const path = window.location.pathname.replace(/\/$/, '') || '/';
+    // Check if initial URL is path-based (e.g. /claim or /Coupon-code/claim)
+    let path = window.location.pathname.replace(/\/$/, '') || '/';
+    if (path.toLowerCase().startsWith('/coupon-code')) {
+      path = path.slice('/coupon-code'.length) || '/';
+    }
+
     if (!window.location.hash && (path === '/claim' || path === '/coupon' || path === '/staff' || path === '/admin')) {
       window.location.hash = `#${path}`;
       return;
@@ -48,7 +52,10 @@ export class Router {
   }
 
   private handleRoute(): void {
-    const rawHash = window.location.hash.slice(1) || '/';
+    let rawHash = window.location.hash.slice(1) || '/';
+    if (rawHash.toLowerCase().startsWith('/coupon-code')) {
+      rawHash = rawHash.slice('/coupon-code'.length) || '/';
+    }
     // Extract base route ignoring query strings
     const path = (rawHash.split('?')[0] || '/').toLowerCase();
 
