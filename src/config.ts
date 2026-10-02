@@ -34,8 +34,7 @@ export const CONFIG: AppConfig = {
   MAX_COUPONS: 500,
   
   // Google Apps Script Web App URL
-  // Replace this with your published Google Apps Script Web App Exec URL (or pass via window.APSARA_CONFIG)
-  APPS_SCRIPT_URL: (typeof window !== 'undefined' && window.APSARA_CONFIG?.APPS_SCRIPT_URL) || '',
+  APPS_SCRIPT_URL: (typeof window !== 'undefined' && window.APSARA_CONFIG?.APPS_SCRIPT_URL) || 'https://script.google.com/macros/s/AKfycbzxqL3J00pTeG3iBR5Sj6gOdBuZxEDtI397YEwz2DQI8CfAU0Y4iGvSEj0ZArZBV5n7/exec',
   
   // Base public URL for the application (used for generating the permanent poster QR)
   APP_BASE_URL: (typeof window !== 'undefined' && window.APSARA_CONFIG?.APP_BASE_URL) || `${currentOrigin}${currentPath}`,
