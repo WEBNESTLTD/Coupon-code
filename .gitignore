@@ -1,0 +1,26 @@
+# Credentials and secrets
+*.env
+*.env.*
+*.key
+*.pem
+credentials.json
+client_secret*.json
+oauth_credentials.json
+token.json
+tokens/
+
+# Local MCP & Agent configurations containing sensitive tokens
+.mcp/
+mcp_config.local.json
+.env.local
+
+# Dependency directories
+node_modules/
+dist/
+build/
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
