@@ -35,7 +35,9 @@ var SheetService = {
         ["Coupon Prefix", CONFIG.COUPON_PREFIX],
         ["Starting Number", CONFIG.STARTING_NUMBER],
         ["Maximum Coupons", CONFIG.MAXIMUM_COUPONS],
-        ["Campaign Status", CONFIG.CAMPAIGN_STATUS]
+        ["Campaign Status", CONFIG.CAMPAIGN_STATUS],
+        ["Admin Username", CONFIG.ADMIN_USERNAME],
+        ["Admin Password", CONFIG.ADMIN_PASSWORD]
       ];
       settingsSheet.getRange(2, 1, defaultSettings.length, 2).setValues(defaultSettings);
       settingsSheet.autoResizeColumns(1, 2);
@@ -69,7 +71,9 @@ var SheetService = {
       couponPrefix: CONFIG.COUPON_PREFIX,
       startingNumber: CONFIG.STARTING_NUMBER,
       maximumCoupons: CONFIG.MAXIMUM_COUPONS,
-      campaignStatus: CONFIG.CAMPAIGN_STATUS
+      campaignStatus: CONFIG.CAMPAIGN_STATUS,
+      adminUsername: CONFIG.ADMIN_USERNAME,
+      adminPassword: CONFIG.ADMIN_PASSWORD
     };
 
     if (!sheet) return settings;
@@ -90,6 +94,8 @@ var SheetService = {
       else if (key === "Starting Number") settings.startingNumber = parseInt(val, 10) || 1;
       else if (key === "Maximum Coupons") settings.maximumCoupons = parseInt(val, 10) || 500;
       else if (key === "Campaign Status") settings.campaignStatus = String(val).toUpperCase().trim();
+      else if (key === "Admin Username") settings.adminUsername = String(val).trim();
+      else if (key === "Admin Password") settings.adminPassword = String(val).trim();
     }
 
     return settings;

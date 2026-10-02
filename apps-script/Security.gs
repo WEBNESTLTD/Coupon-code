@@ -49,5 +49,29 @@ var Security = {
       str = "'" + str;
     }
     return str;
+  },
+
+  /**
+   * Validates admin username & password against settings
+   */
+  validateAdmin: function(username, password) {
+    if (!username || !password) return false;
+    var settings = SheetService.getSettings();
+    var validUser = settings.adminUsername || CONFIG.ADMIN_USERNAME;
+    var validPass = settings.adminPassword || CONFIG.ADMIN_PASSWORD;
+
+    return String(username).trim() === validUser.trim() && String(password).trim() === validPass.trim();
+  },
+
+  /**
+   * Generates a signed session token for authenticated admin
+   */
+  generateAdminSessionToken: function() {
+    var raw = "admin_" + Utilities.getUuid() + "_" + new Date().getTime();
+    var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw, Utilities.Charset.UTF_8);
+    return digest.map(function(byte) {
+      var unsigned = (byte < 0) ? byte + 256 : byte;
+      return ("0" + unsigned.toString(16)).slice(-2);
+    }).join("");
   }
 };

@@ -1,22 +1,138 @@
 /**
  * APSARA ICE CREAMS × DVHIMSR STUDENT COUPON SYSTEM
- * Admin Dashboard Component
- * Metrics, Real-time Statistics, Coupon Lookup & Campaign Control
+ * Admin Dashboard & Sign-In Component
+ * Authenticated Portal for Metrics, Coupon Lookup & Campaign Control
  */
 
 import { Api } from '../api';
 
+const ADMIN_SESSION_KEY = 'apsara_admin_token';
+const ADMIN_USER_KEY = 'apsara_admin_user';
+
 export function renderAdmin(container: HTMLElement): void {
+  const token = sessionStorage.getItem(ADMIN_SESSION_KEY);
+  if (!token) {
+    renderAdminLogin(container);
+  } else {
+    renderAdminDashboard(container);
+  }
+}
+
+function renderAdminLogin(container: HTMLElement): void {
+  container.innerHTML = `
+    <div class="page-container" style="justify-content: center; min-height: 75vh;">
+      <div class="card" style="padding: 32px 24px; text-align: center; box-shadow: var(--shadow-lg);">
+        <div style="width: 54px; height: 54px; background: var(--color-berry-50); color: var(--color-berry-600); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 12px;">
+          🔐
+        </div>
+        
+        <h1 class="title-lg" style="margin-bottom: 4px;">Admin Portal</h1>
+        <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 24px;">
+          Sign in to access campaign analytics & controls
+        </p>
+
+        <form id="admin-login-form" style="text-align: left; display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <label for="admin-username" style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--color-charcoal-700); margin-bottom: 6px;">
+              Username
+            </label>
+            <input 
+              type="text" 
+              id="admin-username" 
+              required 
+              autocomplete="username"
+              placeholder="e.g. apsara_admin" 
+              style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-cream-border); border-radius: var(--radius-md); font-size: 0.95rem; font-family: inherit;"
+            />
+          </div>
+
+          <div>
+            <label for="admin-password" style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--color-charcoal-700); margin-bottom: 6px;">
+              Password
+            </label>
+            <input 
+              type="password" 
+              id="admin-password" 
+              required 
+              autocomplete="current-password"
+              placeholder="••••••••••••" 
+              style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-cream-border); border-radius: var(--radius-md); font-size: 0.95rem; font-family: inherit;"
+            />
+          </div>
+
+          <div id="login-error-msg" style="display: none; background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; padding: 10px; border-radius: var(--radius-md); font-size: 0.82rem;"></div>
+
+          <button type="submit" id="btn-admin-submit" class="btn btn-primary" style="margin-top: 8px;">
+            <span id="btn-login-text">Sign In →</span>
+          </button>
+        </form>
+
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--color-cream-border); font-size: 0.75rem; color: var(--color-charcoal-500); line-height: 1.4;">
+          Credentials can also be configured directly in your Google Spreadsheet’s <strong>Settings</strong> sheet.
+        </div>
+      </div>
+    </div>
+  `;
+
+  const form = container.querySelector('#admin-login-form') as HTMLFormElement;
+  const userInput = container.querySelector('#admin-username') as HTMLInputElement;
+  const passInput = container.querySelector('#admin-password') as HTMLInputElement;
+  const submitBtn = container.querySelector('#btn-admin-submit') as HTMLButtonElement;
+  const btnText = container.querySelector('#btn-login-text') as HTMLElement;
+  const errorMsg = container.querySelector('#login-error-msg') as HTMLElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = userInput.value.trim();
+    const password = passInput.value.trim();
+
+    if (!username || !password) return;
+
+    submitBtn.disabled = true;
+    btnText.innerHTML = `<span class="spinner"></span> Verifying...`;
+    errorMsg.style.display = 'none';
+
+    try {
+      const res = await Api.adminLogin(username, password);
+      if (res.success && res.adminToken) {
+        sessionStorage.setItem(ADMIN_SESSION_KEY, res.adminToken);
+        sessionStorage.setItem(ADMIN_USER_KEY, username);
+        renderAdminDashboard(container);
+      } else {
+        errorMsg.textContent = res.message || 'Invalid username or password. Please try again.';
+        errorMsg.style.display = 'block';
+      }
+    } catch (err: any) {
+      errorMsg.textContent = err.message || 'Connection error. Please try again.';
+      errorMsg.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      btnText.textContent = 'Sign In →';
+    }
+  });
+}
+
+function renderAdminDashboard(container: HTMLElement): void {
+  const loggedInUser = sessionStorage.getItem(ADMIN_USER_KEY) || 'admin';
+
   container.innerHTML = `
     <div class="page-container">
+      <!-- Admin Top Bar -->
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
         <div>
           <h1 class="title-lg" style="margin: 0;">Campaign Dashboard</h1>
-          <div class="text-muted" style="font-size: 0.8rem;">Apsara × DVHIMSR Metrics & Controls</div>
+          <div class="text-muted" style="font-size: 0.78rem;">
+            Logged in as <strong>${loggedInUser}</strong>
+          </div>
         </div>
-        <button id="btn-refresh-stats" class="btn btn-secondary" style="width: auto; min-height: 38px; padding: 0 14px; font-size: 0.8rem;">
-          🔄 Refresh
-        </button>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-refresh-stats" class="btn btn-secondary" style="width: auto; min-height: 38px; padding: 0 12px; font-size: 0.8rem;">
+            🔄 Refresh
+          </button>
+          <button id="btn-admin-logout" class="btn btn-secondary" style="width: auto; min-height: 38px; padding: 0 12px; font-size: 0.8rem; color: #DC2626;">
+            Sign Out
+          </button>
+        </div>
       </div>
 
       <!-- Stats Grid -->
@@ -96,6 +212,7 @@ export function renderAdmin(container: HTMLElement): void {
   const statRem = container.querySelector('#stat-remaining') as HTMLElement;
   const statusBadge = container.querySelector('#badge-campaign-status') as HTMLElement;
   const refreshBtn = container.querySelector('#btn-refresh-stats') as HTMLButtonElement;
+  const logoutBtn = container.querySelector('#btn-admin-logout') as HTMLButtonElement;
   const setActiveBtn = container.querySelector('#btn-set-active') as HTMLButtonElement;
   const setInactiveBtn = container.querySelector('#btn-set-inactive') as HTMLButtonElement;
   const searchInput = container.querySelector('#input-search-coupon') as HTMLInputElement;
@@ -103,6 +220,12 @@ export function renderAdmin(container: HTMLElement): void {
   const searchResult = container.querySelector('#search-result-container') as HTMLElement;
   const recentTable = container.querySelector('#recent-coupons-table') as HTMLElement;
   const resetMockBtn = container.querySelector('#btn-reset-mock') as HTMLButtonElement;
+
+  logoutBtn.addEventListener('click', () => {
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    sessionStorage.removeItem(ADMIN_USER_KEY);
+    renderAdmin(container);
+  });
 
   async function loadData() {
     try {

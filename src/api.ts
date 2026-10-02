@@ -258,6 +258,13 @@ class LocalMockDatabase {
     return { success: true, campaignStatus: status };
   }
 
+  adminLogin(username: string, password: string): ApiResponse {
+    if (username.trim() === 'apsara_admin' && password.trim() === 'ApsaraDVHIMSR2026!') {
+      return { success: true, adminToken: 'mock_admin_token_' + Date.now(), username };
+    }
+    return { success: false, code: 'AUTH_FAILED', message: 'Invalid admin username or password.' };
+  }
+
   reset(): void {
     localStorage.removeItem(this.key);
   }
@@ -442,6 +449,26 @@ export const Api = {
         success: false,
         code: 'NETWORK_ERROR',
         message: err.message || 'Failed to update campaign status.'
+      };
+    }
+  },
+
+  async adminLogin(username: string, password: string): Promise<ApiResponse> {
+    if (isUsingMock()) {
+      return mockDb.adminLogin(username, password);
+    }
+
+    try {
+      return await requestJsonp<ApiResponse>(CONFIG.APPS_SCRIPT_URL, {
+        action: 'adminlogin',
+        username,
+        password
+      });
+    } catch (err: any) {
+      return {
+        success: false,
+        code: 'NETWORK_ERROR',
+        message: err.message || 'Admin authentication failed.'
       };
     }
   },

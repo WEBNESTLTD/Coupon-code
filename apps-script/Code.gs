@@ -69,6 +69,21 @@ function doGet(e) {
         responseData = Utils.success({ recent: recent }, "Recent coupons loaded.");
         break;
 
+      case "adminlogin":
+        var user = params.username;
+        var pass = params.password;
+        if (Security.validateAdmin(user, pass)) {
+          var token = Security.generateAdminSessionToken();
+          responseData = Utils.success({
+            authenticated: true,
+            adminToken: token,
+            username: user
+          }, "Admin authentication successful.");
+        } else {
+          responseData = Utils.error("AUTH_FAILED", "Invalid admin username or password.");
+        }
+        break;
+
       case "init":
         responseData = SheetService.initSheets();
         break;
@@ -133,6 +148,21 @@ function doPost(e) {
           responseData = Utils.success({ campaignStatus: newStatus }, "Campaign status updated to " + newStatus);
         } else {
           responseData = Utils.error("INVALID_STATUS", "Status must be ACTIVE or INACTIVE.");
+        }
+        break;
+
+      case "adminlogin":
+        var user = data.username;
+        var pass = data.password;
+        if (Security.validateAdmin(user, pass)) {
+          var token = Security.generateAdminSessionToken();
+          responseData = Utils.success({
+            authenticated: true,
+            adminToken: token,
+            username: user
+          }, "Admin authentication successful.");
+        } else {
+          responseData = Utils.error("AUTH_FAILED", "Invalid admin username or password.");
         }
         break;
 
