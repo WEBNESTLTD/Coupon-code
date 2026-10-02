@@ -34,16 +34,18 @@ function doGet(e) {
         responseData = RedemptionService.verifyCoupon(verifyToken);
         break;
 
+      case "":
       case "status":
         var settings = SheetService.getSettings();
         responseData = Utils.success({
+          service: "Apsara Ice Creams × DVHIMSR Student Coupon API",
           campaignId: settings.campaignId,
           campaignName: settings.campaignName,
           collegeName: settings.collegeName,
           discountPercentage: settings.discountPercentage,
           campaignStatus: settings.campaignStatus,
           maximumCoupons: settings.maximumCoupons
-        }, "Campaign status loaded.");
+        }, "Apsara Coupon System Backend is active and running.");
         break;
 
       case "stats":
