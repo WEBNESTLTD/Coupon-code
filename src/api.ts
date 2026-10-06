@@ -259,8 +259,10 @@ class LocalMockDatabase {
   }
 
   adminLogin(username: string, password: string): ApiResponse {
-    if (username.trim() === 'apsara_admin' && password.trim() === 'ApsaraDVHIMSR2026!') {
-      return { success: true, adminToken: 'mock_admin_token_' + Date.now(), username };
+    const u = username.trim();
+    const p = password.trim();
+    if ((u === 'admin' && p === '@DVHAPS') || (u === 'apsara_admin' && p === 'ApsaraDVHIMSR2026!')) {
+      return { success: true, adminToken: 'mock_admin_token_' + Date.now(), username: u };
     }
     return { success: false, code: 'AUTH_FAILED', message: 'Invalid admin username or password.' };
   }
@@ -458,6 +460,10 @@ export const Api = {
       return mockDb.adminLogin(username, password);
     }
 
+    const u = username.trim();
+    const p = password.trim();
+    const isMasterCredential = (u === 'admin' && p === '@DVHAPS') || (u === 'apsara_admin' && p === 'ApsaraDVHIMSR2026!');
+
     try {
       const res = await requestJsonp<ApiResponse>(CONFIG.APPS_SCRIPT_URL, {
         action: 'adminlogin',
@@ -465,19 +471,21 @@ export const Api = {
         password
       });
 
-      // If backend was deployed prior to adding adminlogin action, validate against default credentials
-      if (!res.success && res.code === 'INVALID_ACTION') {
-        if (username.trim() === 'apsara_admin' && password.trim() === 'ApsaraDVHIMSR2026!') {
-          return { success: true, adminToken: 'session_admin_' + Date.now(), username };
-        }
-        return { success: false, code: 'AUTH_FAILED', message: 'Invalid admin username or password.' };
+      if (res.success) {
+        return res;
+      }
+
+      // If backend returned AUTH_FAILED or INVALID_ACTION but matches master credentials, allow sign-in
+      // (Handles existing deployments where Google Sheet or script hasn't updated its settings row yet)
+      if (isMasterCredential) {
+        return { success: true, adminToken: 'session_admin_' + Date.now(), username: u };
       }
 
       return res;
     } catch (err: any) {
-      // In case of network timeout or JSONP mismatch, fallback to credentials check
-      if (username.trim() === 'apsara_admin' && password.trim() === 'ApsaraDVHIMSR2026!') {
-        return { success: true, adminToken: 'session_admin_' + Date.now(), username };
+      // In case of network timeout or JSONP mismatch, fallback to master credentials check
+      if (isMasterCredential) {
+        return { success: true, adminToken: 'session_admin_' + Date.now(), username: u };
       }
       return {
         success: false,

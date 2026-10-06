@@ -22,8 +22,8 @@ var CONFIG = {
   LOCK_TIMEOUT_MS: 30000, // 30 seconds wait for concurrency lock
 
   // Admin Portal Credentials (can also be configured/changed directly in Settings sheet)
-  ADMIN_USERNAME: "apsara_admin",
-  ADMIN_PASSWORD: "ApsaraDVHIMSR2026!",
+  ADMIN_USERNAME: "admin",
+  ADMIN_PASSWORD: "@DVHAPS",
 
   COUPONS_HEADERS: [
     "Coupon ID",

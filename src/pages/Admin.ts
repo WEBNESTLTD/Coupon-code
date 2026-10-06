@@ -41,7 +41,7 @@ function renderAdminLogin(container: HTMLElement): void {
               id="admin-username" 
               required 
               autocomplete="username"
-              placeholder="e.g. apsara_admin" 
+              placeholder="e.g. admin" 
               style="width: 100%; padding: 12px 14px; border: 1px solid var(--color-cream-border); border-radius: var(--radius-md); font-size: 0.95rem; font-family: inherit;"
             />
           </div>
