@@ -49,7 +49,7 @@ export function renderCoupon(container: HTMLElement): void {
             ${coupon.discountPercentage || CONFIG.DISCOUNT_PERCENTAGE}% OFF
           </span>
           <div style="font-size: 0.95rem; font-weight: 700; color: var(--color-charcoal-700); margin-top: 4px;">
-            For ${coupon.collegeName || CONFIG.COLLEGE_NAME} College Students
+            For all Students
           </div>
         </div>
 
