@@ -357,5 +357,29 @@ var SheetService = {
     }
 
     return results;
+  },
+
+  /**
+   * Resets all coupons by clearing all rows below the header in the Coupons sheet
+   */
+  resetAllCoupons: function() {
+    var lock = LockService.getScriptLock();
+    if (!lock.waitLock(CONFIG.LOCK_TIMEOUT_MS)) {
+      return Utils.error("LOCK_TIMEOUT", "Server busy. Please retry.");
+    }
+    try {
+      var sheet = this.getCouponsSheet();
+      var lastRow = sheet.getLastRow();
+      var clearedCount = 0;
+      if (lastRow >= 2) {
+        clearedCount = lastRow - 1;
+        sheet.deleteRows(2, clearedCount);
+      }
+      return Utils.success({ clearedCount: clearedCount }, "Successfully reset " + clearedCount + " coupon(s). Next coupon will start from #001.");
+    } catch (e) {
+      return Utils.error("RESET_ERROR", e.message || "Failed to reset coupons.");
+    } finally {
+      lock.releaseLock();
+    }
   }
 };

@@ -84,12 +84,16 @@ function doGet(e) {
         }
         break;
 
+      case "resetcoupons":
+        responseData = SheetService.resetAllCoupons();
+        break;
+
       case "init":
         responseData = SheetService.initSheets();
         break;
 
       default:
-        responseData = Utils.error("INVALID_ACTION", "Unrecognized action: " + action + ". Supported actions: claim, redeem, verify, status, stats, search, recent, init.");
+        responseData = Utils.error("INVALID_ACTION", "Unrecognized action: " + action + ". Supported actions: claim, redeem, verify, status, stats, search, recent, resetcoupons, init.");
         break;
     }
 
@@ -164,6 +168,10 @@ function doPost(e) {
         } else {
           responseData = Utils.error("AUTH_FAILED", "Invalid admin username or password.");
         }
+        break;
+
+      case "resetcoupons":
+        responseData = SheetService.resetAllCoupons();
         break;
 
       default:

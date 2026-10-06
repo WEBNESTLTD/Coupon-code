@@ -175,6 +175,12 @@ function renderAdminDashboard(container: HTMLElement): void {
             🔴 Set Inactive
           </button>
         </div>
+
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--color-cream-border);">
+          <button id="btn-reset-coupons" class="btn btn-secondary" style="width: 100%; min-height: 40px; font-size: 0.85rem; color: #dc2626; border-color: #fca5a5; background: #fff5f5;">
+            🗑️ Reset All Generated Coupons
+          </button>
+        </div>
       </div>
 
       <!-- Coupon Search Card -->
@@ -220,6 +226,7 @@ function renderAdminDashboard(container: HTMLElement): void {
   const searchResult = container.querySelector('#search-result-container') as HTMLElement;
   const recentTable = container.querySelector('#recent-coupons-table') as HTMLElement;
   const resetMockBtn = container.querySelector('#btn-reset-mock') as HTMLButtonElement;
+  const resetCouponsBtn = container.querySelector('#btn-reset-coupons') as HTMLButtonElement;
 
   logoutBtn.addEventListener('click', () => {
     sessionStorage.removeItem(ADMIN_SESSION_KEY);
@@ -328,6 +335,25 @@ function renderAdminDashboard(container: HTMLElement): void {
       loadData();
     }
   });
+
+  if (resetCouponsBtn) {
+    resetCouponsBtn.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to delete and reset all generated coupons? This will clear the recent coupons log and restart the coupon counter back to #001.')) {
+        resetCouponsBtn.disabled = true;
+        resetCouponsBtn.textContent = 'Resetting...';
+        try {
+          const res = await Api.resetAllCoupons();
+          alert(res.message || 'All coupons reset successfully.');
+          await loadData();
+        } catch (e: any) {
+          alert('Error: ' + (e.message || 'Failed to reset coupons.'));
+        } finally {
+          resetCouponsBtn.disabled = false;
+          resetCouponsBtn.textContent = '🗑️ Reset All Generated Coupons';
+        }
+      }
+    });
+  }
 
   // Initial load
   loadData();

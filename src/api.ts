@@ -6,6 +6,7 @@
  */
 
 import { CONFIG, isUsingMock } from './config';
+import { Storage } from './storage';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -497,5 +498,29 @@ export const Api = {
 
   resetMock(): void {
     mockDb.reset();
+  },
+
+  async resetAllCoupons(): Promise<ApiResponse> {
+    // Clear local mock database and active browser session
+    mockDb.reset();
+    Storage.clearActiveCoupon();
+    Storage.clearClaimRequestId();
+
+    if (isUsingMock()) {
+      return { success: true, message: 'All coupons have been reset to #001.' };
+    }
+
+    try {
+      const res = await requestJsonp<ApiResponse>(CONFIG.APPS_SCRIPT_URL, {
+        action: 'resetcoupons'
+      });
+      return res;
+    } catch (err: any) {
+      return {
+        success: false,
+        code: 'NETWORK_ERROR',
+        message: err.message || 'Failed to communicate with coupon reset endpoint.'
+      };
+    }
   }
 };
