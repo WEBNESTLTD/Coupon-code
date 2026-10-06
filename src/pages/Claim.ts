@@ -88,7 +88,7 @@ export function renderClaim(container: HTMLElement): void {
           📋 Offer Details
         </div>
         <ul style="padding-left: 20px; font-size: 0.8rem; color: var(--color-charcoal-700); display: flex; flex-direction: column; gap: 6px;">
-          <li>Valid exclusively for DVHIMSR College students.</li>
+          <li>Valid exclusively for College students.</li>
           <li>15% discount applied directly to your bill.</li>
           <li>Each coupon is unique and single-use only.</li>
           <li>Present the coupon QR code to staff during billing.</li>

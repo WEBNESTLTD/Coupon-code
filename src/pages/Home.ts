@@ -30,7 +30,7 @@ export function renderHome(container: HTMLElement): void {
             ${CONFIG.DISCOUNT_PERCENTAGE}% OFF
           </div>
           <div style="font-size: 0.85rem; font-weight: 600; opacity: 0.9;">
-            For all DVHIMSR Students
+            For all Students
           </div>
         </div>
 
@@ -89,7 +89,7 @@ export function renderHome(container: HTMLElement): void {
 
       <!-- Terms & Notes -->
       <div style="text-align: center; font-size: 0.75rem; color: var(--color-charcoal-500); padding: 8px 12px;">
-        Valid for DVHIMSR Students. One-time use per coupon. No login or phone number required.
+        Valid for Students. One-time use per coupon. No login or phone number required.
       </div>
     </div>
   `;
