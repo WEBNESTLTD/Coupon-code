@@ -324,7 +324,8 @@ var SheetService = {
       totalGenerated: totalGenerated,
       totalRedeemed: totalRedeemed,
       totalUnused: totalUnused,
-      remaining: remaining
+      remaining: remaining,
+      recent: this.getRecentCoupons(15)
     };
   },
 

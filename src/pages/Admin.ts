@@ -234,77 +234,108 @@ function renderAdminDashboard(container: HTMLElement): void {
     renderAdmin(container);
   });
 
+  const CACHE_STATS_KEY = 'apsara_cached_stats';
+  const CACHE_RECENT_KEY = 'apsara_cached_recent';
+
+  function renderStats(stats: any) {
+    statGen.textContent = String(stats.totalGenerated ?? 0);
+    statRed.textContent = String(stats.totalRedeemed ?? 0);
+    statUnused.textContent = String(stats.totalUnused ?? 0);
+    statRem.textContent = String(stats.remaining ?? 0);
+
+    if (stats.campaignStatus === 'ACTIVE') {
+      statusBadge.textContent = 'ACTIVE';
+      statusBadge.className = 'status-pill status-active';
+    } else {
+      statusBadge.textContent = 'INACTIVE';
+      statusBadge.className = 'status-pill status-inactive';
+    }
+  }
+
+  function renderRecentTable(recent: any[]) {
+    if (!recent || recent.length === 0) {
+      recentTable.innerHTML = `<div class="text-muted" style="text-align: center; padding: 12px;">No coupons issued yet.</div>`;
+      return;
+    }
+    recentTable.innerHTML = `
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--color-cream-border); color: var(--color-charcoal-500); font-size: 0.75rem;">
+            <th style="padding: 6px 8px;">Coupon ID</th>
+            <th style="padding: 6px 8px;">Status</th>
+            <th style="padding: 6px 8px;">Date</th>
+            <th style="padding: 6px 8px;">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${recent.map((c: any) => {
+            const targetRaw = c.redeemedAt || c.createdAt;
+            let dateStr = '-';
+            let timeStr = '-';
+            if (targetRaw) {
+              const d = new Date(targetRaw);
+              if (!isNaN(d.getTime())) {
+                const dd = String(d.getDate()).padStart(2, '0');
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const yy = String(d.getFullYear()).slice(-2);
+                dateStr = `${dd}/${mm}/${yy}`;
+                timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+              } else {
+                timeStr = String(targetRaw);
+              }
+            }
+            return `
+            <tr style="border-bottom: 1px solid var(--color-cream-border);">
+              <td style="padding: 8px; font-weight: 800; font-family: monospace;">${c.couponId}</td>
+              <td style="padding: 8px;">
+                <span class="status-pill ${c.status === 'USED' ? 'status-used' : 'status-unused'}" style="font-size: 0.7rem; padding: 2px 8px;">
+                  ${c.status}
+                </span>
+              </td>
+              <td style="padding: 8px; font-size: 0.72rem; color: var(--color-charcoal-600); white-space: nowrap;">
+                ${dateStr}
+              </td>
+              <td style="padding: 8px; font-size: 0.72rem; color: var(--color-charcoal-500); white-space: nowrap;">
+                ${timeStr}
+              </td>
+            </tr>
+          `;
+          }).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  // Instant render from cache on page refresh (0ms perceived wait)
+  try {
+    const cachedStats = sessionStorage.getItem(CACHE_STATS_KEY);
+    if (cachedStats) renderStats(JSON.parse(cachedStats));
+
+    const cachedRecent = sessionStorage.getItem(CACHE_RECENT_KEY);
+    if (cachedRecent) renderRecentTable(JSON.parse(cachedRecent));
+  } catch {}
+
   async function loadData() {
     try {
-      const statsRes = await Api.getStats();
-      if (statsRes.success) {
-        statGen.textContent = String(statsRes.totalGenerated);
-        statRed.textContent = String(statsRes.totalRedeemed);
-        statUnused.textContent = String(statsRes.totalUnused);
-        statRem.textContent = String(statsRes.remaining);
+      // Fetch both in parallel to cut latency in half
+      const [statsRes, recentRes] = await Promise.all([
+        Api.getStats(),
+        Api.getRecent(15)
+      ]);
 
-        if (statsRes.campaignStatus === 'ACTIVE') {
-          statusBadge.textContent = 'ACTIVE';
-          statusBadge.className = 'status-pill status-active';
-        } else {
-          statusBadge.textContent = 'INACTIVE';
-          statusBadge.className = 'status-pill status-inactive';
+      if (statsRes.success) {
+        renderStats(statsRes);
+        try { sessionStorage.setItem(CACHE_STATS_KEY, JSON.stringify(statsRes)); } catch {}
+
+        if ((statsRes as any).recent && Array.isArray((statsRes as any).recent)) {
+          renderRecentTable((statsRes as any).recent);
+          try { sessionStorage.setItem(CACHE_RECENT_KEY, JSON.stringify((statsRes as any).recent)); } catch {}
         }
       }
 
-      const recentRes = await Api.getRecent(15);
       if (recentRes.success && recentRes.recent) {
-        if (recentRes.recent.length === 0) {
-          recentTable.innerHTML = `<div class="text-muted" style="text-align: center; padding: 12px;">No coupons issued yet.</div>`;
-        } else {
-          recentTable.innerHTML = `
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
-              <thead>
-                <tr style="border-bottom: 2px solid var(--color-cream-border); color: var(--color-charcoal-500); font-size: 0.75rem;">
-                  <th style="padding: 6px 8px;">Coupon ID</th>
-                  <th style="padding: 6px 8px;">Status</th>
-                  <th style="padding: 6px 8px;">Date</th>
-                  <th style="padding: 6px 8px;">Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${recentRes.recent.map((c: any) => {
-                  const targetRaw = c.redeemedAt || c.createdAt;
-                  let dateStr = '-';
-                  let timeStr = '-';
-                  if (targetRaw) {
-                    const d = new Date(targetRaw);
-                    if (!isNaN(d.getTime())) {
-                      const dd = String(d.getDate()).padStart(2, '0');
-                      const mm = String(d.getMonth() + 1).padStart(2, '0');
-                      const yy = String(d.getFullYear()).slice(-2);
-                      dateStr = `${dd}/${mm}/${yy}`;
-                      timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    } else {
-                      timeStr = String(targetRaw);
-                    }
-                  }
-                  return `
-                  <tr style="border-bottom: 1px solid var(--color-cream-border);">
-                    <td style="padding: 8px; font-weight: 800; font-family: monospace;">${c.couponId}</td>
-                    <td style="padding: 8px;">
-                      <span class="status-pill ${c.status === 'USED' ? 'status-used' : 'status-unused'}" style="font-size: 0.7rem; padding: 2px 8px;">
-                        ${c.status}
-                      </span>
-                    </td>
-                    <td style="padding: 8px; font-size: 0.72rem; color: var(--color-charcoal-600); white-space: nowrap;">
-                      ${dateStr}
-                    </td>
-                    <td style="padding: 8px; font-size: 0.72rem; color: var(--color-charcoal-500); white-space: nowrap;">
-                      ${timeStr}
-                    </td>
-                  </tr>
-                `;
-                }).join('')}
-              </tbody>
-            </table>
-          `;
-        }
+        renderRecentTable(recentRes.recent);
+        try { sessionStorage.setItem(CACHE_RECENT_KEY, JSON.stringify(recentRes.recent)); } catch {}
       }
     } catch (err: any) {
       console.warn('Admin load error', err);
