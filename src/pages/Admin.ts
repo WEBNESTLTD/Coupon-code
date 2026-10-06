@@ -260,14 +260,28 @@ function renderAdminDashboard(container: HTMLElement): void {
           recentTable.innerHTML = `
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
               <thead>
-                <tr style="border-bottom: 2px solid var(--color-cream-border); color: var(--color-charcoal-500);">
+                <tr style="border-bottom: 2px solid var(--color-cream-border); color: var(--color-charcoal-500); font-size: 0.75rem;">
                   <th style="padding: 6px 8px;">Coupon ID</th>
                   <th style="padding: 6px 8px;">Status</th>
+                  <th style="padding: 6px 8px;">Date</th>
                   <th style="padding: 6px 8px;">Time</th>
                 </tr>
               </thead>
               <tbody>
-                ${recentRes.recent.map((c: any) => `
+                ${recentRes.recent.map((c: any) => {
+                  const targetRaw = c.redeemedAt || c.createdAt;
+                  let dateStr = '-';
+                  let timeStr = '-';
+                  if (targetRaw) {
+                    const d = new Date(targetRaw);
+                    if (!isNaN(d.getTime())) {
+                      dateStr = d.toLocaleDateString();
+                      timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    } else {
+                      timeStr = String(targetRaw);
+                    }
+                  }
+                  return `
                   <tr style="border-bottom: 1px solid var(--color-cream-border);">
                     <td style="padding: 8px; font-weight: 800; font-family: monospace;">${c.couponId}</td>
                     <td style="padding: 8px;">
@@ -275,11 +289,15 @@ function renderAdminDashboard(container: HTMLElement): void {
                         ${c.status}
                       </span>
                     </td>
-                    <td style="padding: 8px; font-size: 0.72rem; color: var(--color-charcoal-500);">
-                      ${c.redeemedAt ? new Date(c.redeemedAt).toLocaleTimeString() : new Date(c.createdAt).toLocaleTimeString()}
+                    <td style="padding: 8px; font-size: 0.72rem; color: var(--color-charcoal-600); white-space: nowrap;">
+                      ${dateStr}
+                    </td>
+                    <td style="padding: 8px; font-size: 0.72rem; color: var(--color-charcoal-500); white-space: nowrap;">
+                      ${timeStr}
                     </td>
                   </tr>
-                `).join('')}
+                `;
+                }).join('')}
               </tbody>
             </table>
           `;
