@@ -30,7 +30,7 @@ export const CONFIG: AppConfig = {
   CAMPAIGN_NAME: 'Apsara Ice Creams × DVHIMSR Student Offer',
   COLLEGE_NAME: 'DVHIMSR',
   DISCOUNT_PERCENTAGE: 15,
-  COUPON_PREFIX: 'DVHIMSR',
+  COUPON_PREFIX: 'APSARA',
   MAX_COUPONS: 500,
   
   // Google Apps Script Web App URL

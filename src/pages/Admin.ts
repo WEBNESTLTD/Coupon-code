@@ -187,7 +187,7 @@ function renderAdminDashboard(container: HTMLElement): void {
       <div class="card" style="padding: 20px;">
         <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 8px;">Inspect Coupon Record</div>
         <div style="display: flex; gap: 8px;">
-          <input type="text" id="input-search-coupon" placeholder="e.g. DVHIMSR-001" style="flex: 1; padding: 10px 14px; border: 1px solid var(--color-cream-border); border-radius: var(--radius-md); font-family: monospace; font-size: 0.9rem;" />
+          <input type="text" id="input-search-coupon" placeholder="e.g. APSARA-001" style="flex: 1; padding: 10px 14px; border: 1px solid var(--color-cream-border); border-radius: var(--radius-md); font-family: monospace; font-size: 0.9rem;" />
           <button id="btn-search-coupon" class="btn btn-primary" style="width: auto; min-height: 42px; padding: 0 16px; font-size: 0.85rem;">
             Search
           </button>

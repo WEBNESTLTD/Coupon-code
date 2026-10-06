@@ -58,7 +58,7 @@ class MockGoogleSheetStore {
       campaignName: 'Apsara Ice Creams × DVHIMSR Student Offer',
       collegeName: 'DVHIMSR',
       discountPercentage: 15,
-      couponPrefix: 'DVHIMSR',
+      couponPrefix: 'APSARA',
       startingNumber: 1,
       maximumCoupons: 500,
       campaignStatus: 'ACTIVE'
@@ -222,19 +222,19 @@ describe('APSARA × DVHIMSR STUDENT COUPON SYSTEM - MASTER VERIFICATION', () => 
   });
 
   describe('1. Critical Claim Test Matrix (Section 42)', () => {
-    test('Scenario 1: First claim (Request A) produces DVHIMSR-001', async () => {
+    test('Scenario 1: First claim (Request A) produces APSARA-001', async () => {
       const res = await store.claimCoupon('req-alpha-1111');
       assert.equal(res.success, true);
-      assert.equal(res.couponId, 'DVHIMSR-001');
+      assert.equal(res.couponId, 'APSARA-001');
       assert.equal(res.alreadyCreated, false);
       assert.equal(res.status, 'UNUSED');
     });
 
-    test('Scenario 2: Same request retry (Request A) returns DVHIMSR-001 with alreadyCreated: true', async () => {
+    test('Scenario 2: Same request retry (Request A) returns APSARA-001 with alreadyCreated: true', async () => {
       await store.claimCoupon('req-alpha-1111');
       const retryRes = await store.claimCoupon('req-alpha-1111');
       assert.equal(retryRes.success, true);
-      assert.equal(retryRes.couponId, 'DVHIMSR-001');
+      assert.equal(retryRes.couponId, 'APSARA-001');
       assert.equal(retryRes.alreadyCreated, true);
     });
 
@@ -243,8 +243,8 @@ describe('APSARA × DVHIMSR STUDENT COUPON SYSTEM - MASTER VERIFICATION', () => 
         store.claimCoupon('req-alpha-1111'),
         store.claimCoupon('req-alpha-1111')
       ]);
-      assert.equal(res1.couponId, 'DVHIMSR-001');
-      assert.equal(res2.couponId, 'DVHIMSR-001');
+      assert.equal(res1.couponId, 'APSARA-001');
+      assert.equal(res2.couponId, 'APSARA-001');
       assert.equal(store.coupons.length, 1);
     });
 
@@ -256,30 +256,30 @@ describe('APSARA × DVHIMSR STUDENT COUPON SYSTEM - MASTER VERIFICATION', () => 
       assert.equal(store.coupons.length, 1);
     });
 
-    test('Scenario 5: New intentional claim (Request B) produces DVHIMSR-002', async () => {
+    test('Scenario 5: New intentional claim (Request B) produces APSARA-002', async () => {
       await store.claimCoupon('req-alpha-1111');
       const resB = await store.claimCoupon('req-bravo-2222');
       assert.equal(resB.success, true);
-      assert.equal(resB.couponId, 'DVHIMSR-002');
+      assert.equal(resB.couponId, 'APSARA-002');
       assert.equal(resB.alreadyCreated, false);
     });
 
-    test('Scenario 6: New student claim (Request C) produces DVHIMSR-003', async () => {
+    test('Scenario 6: New student claim (Request C) produces APSARA-003', async () => {
       await store.claimCoupon('req-alpha-1111');
       await store.claimCoupon('req-bravo-2222');
       const resC = await store.claimCoupon('req-charlie-3333');
       assert.equal(resC.success, true);
-      assert.equal(resC.couponId, 'DVHIMSR-003');
+      assert.equal(resC.couponId, 'APSARA-003');
     });
 
-    test('Scenario 7: Same poster scanned again by first student (Request D) produces DVHIMSR-004', async () => {
+    test('Scenario 7: Same poster scanned again by first student (Request D) produces APSARA-004', async () => {
       await store.claimCoupon('req-alpha-1111');
       await store.claimCoupon('req-bravo-2222');
       await store.claimCoupon('req-charlie-3333');
       // Student returns, starts a new claim session with fresh UUID
       const resD = await store.claimCoupon('req-delta-4444');
       assert.equal(resD.success, true);
-      assert.equal(resD.couponId, 'DVHIMSR-004');
+      assert.equal(resD.couponId, 'APSARA-004');
     });
 
     test('Scenario 8: Same coupon scanned twice at shop -> first succeeds, second rejected', async () => {
@@ -287,17 +287,17 @@ describe('APSARA × DVHIMSR STUDENT COUPON SYSTEM - MASTER VERIFICATION', () => 
       const scan1 = await store.redeemCoupon(claim.token, 'Staff Terminal 1');
       assert.equal(scan1.success, true);
       assert.equal(scan1.code, 'VALID');
-      assert.equal(scan1.couponId, 'DVHIMSR-001');
+      assert.equal(scan1.couponId, 'APSARA-001');
 
       const scan2 = await store.redeemCoupon(claim.token, 'Staff Terminal 2');
       assert.equal(scan2.success, false);
       assert.equal(scan2.code, 'ALREADY_USED');
-      assert.equal(scan2.couponId, 'DVHIMSR-001');
+      assert.equal(scan2.couponId, 'APSARA-001');
     });
   });
 
   describe('2. Concurrency Stress Test: 100 Simultaneous NEW Claims (Section 43)', () => {
-    test('100 concurrent unique claim requests generate DVHIMSR-001 through DVHIMSR-100 without duplicates or gaps', async () => {
+    test('100 concurrent unique claim requests generate APSARA-001 through APSARA-100 without duplicates or gaps', async () => {
       const numRequests = 100;
       const requestIds = Array.from({ length: numRequests }, (_, i) => `req-concurrent-uuid-${i + 1}`);
 
@@ -316,9 +316,9 @@ describe('APSARA × DVHIMSR STUDENT COUPON SYSTEM - MASTER VERIFICATION', () => 
       // Verify exactly 100 unique coupons
       assert.equal(uniqueIds.size, 100);
 
-      // Verify sequence from DVHIMSR-001 to DVHIMSR-100
+      // Verify sequence from APSARA-001 to APSARA-100
       for (let i = 1; i <= 100; i++) {
-        const expectedId = `DVHIMSR-${String(i).padStart(3, '0')}`;
+        const expectedId = `APSARA-${String(i).padStart(3, '0')}`;
         assert.ok(uniqueIds.has(expectedId), `Missing expected coupon ID: ${expectedId}`);
       }
 
@@ -336,7 +336,7 @@ describe('APSARA × DVHIMSR STUDENT COUPON SYSTEM - MASTER VERIFICATION', () => 
       // All 100 must succeed
       for (const res of results) {
         assert.equal(res.success, true);
-        assert.equal(res.couponId, 'DVHIMSR-001');
+        assert.equal(res.couponId, 'APSARA-001');
       }
 
       // Exactly ONE coupon must exist in the database
@@ -368,7 +368,7 @@ describe('APSARA × DVHIMSR STUDENT COUPON SYSTEM - MASTER VERIFICATION', () => 
     test('Capped at 500 coupons: Coupon 500 succeeds, Coupon 501 is rejected with LIMIT_REACHED', async () => {
       // Set starting coupon count directly for fast test
       store.coupons = Array.from({ length: 499 }, (_, i) => ({
-        couponId: `DVHIMSR-${String(i + 1).padStart(3, '0')}`,
+        couponId: `APSARA-${String(i + 1).padStart(3, '0')}`,
         token: `token-${i + 1}`,
         status: 'UNUSED',
         createdAt: new Date().toISOString(),
@@ -381,7 +381,7 @@ describe('APSARA × DVHIMSR STUDENT COUPON SYSTEM - MASTER VERIFICATION', () => 
       // Claim #500
       const res500 = await store.claimCoupon('req-claim-number-500');
       assert.equal(res500.success, true);
-      assert.equal(res500.couponId, 'DVHIMSR-500');
+      assert.equal(res500.couponId, 'APSARA-500');
 
       // Claim #501
       const res501 = await store.claimCoupon('req-claim-number-501');

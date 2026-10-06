@@ -249,6 +249,14 @@ var SheetService = {
         if (!isNaN(numPart) && numPart > maxNum) {
           maxNum = numPart;
         }
+      } else {
+        var match = idStr.match(/^[A-Z0-9]+-(\d+)$/i);
+        if (match) {
+          var anyNum = parseInt(match[1], 10);
+          if (!isNaN(anyNum) && anyNum > maxNum) {
+            maxNum = anyNum;
+          }
+        }
       }
     }
     return maxNum + 1;
