@@ -275,7 +275,10 @@ function renderAdminDashboard(container: HTMLElement): void {
                   if (targetRaw) {
                     const d = new Date(targetRaw);
                     if (!isNaN(d.getTime())) {
-                      dateStr = d.toLocaleDateString();
+                      const dd = String(d.getDate()).padStart(2, '0');
+                      const mm = String(d.getMonth() + 1).padStart(2, '0');
+                      const yy = String(d.getFullYear()).slice(-2);
+                      dateStr = `${dd}/${mm}/${yy}`;
                       timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     } else {
                       timeStr = String(targetRaw);
